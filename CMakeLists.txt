@@ -952,6 +952,7 @@ else()
             $<TARGET_OBJECTS:draco_compression_bit_coders>
             $<TARGET_OBJECTS:draco_compression_decode>
             $<TARGET_OBJECTS:draco_compression_encode>
+            $<TARGET_OBJECTS:draco_compression_entropy>
             $<TARGET_OBJECTS:draco_compression_mesh_dec>
             $<TARGET_OBJECTS:draco_compression_mesh_enc>
             $<TARGET_OBJECTS:draco_compression_point_cloud_dec>
@@ -1013,6 +1014,7 @@ else()
             $<TARGET_OBJECTS:draco_compression_bit_coders>
             $<TARGET_OBJECTS:draco_compression_decode>
             $<TARGET_OBJECTS:draco_compression_encode>
+            $<TARGET_OBJECTS:draco_compression_entropy>
             $<TARGET_OBJECTS:draco_compression_mesh_dec>
             $<TARGET_OBJECTS:draco_compression_mesh_enc>
             $<TARGET_OBJECTS:draco_compression_point_cloud_dec>
