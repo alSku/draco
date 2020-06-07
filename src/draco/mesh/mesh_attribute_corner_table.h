@@ -31,8 +31,7 @@ class MeshAttributeCornerTable {
  public:
   MeshAttributeCornerTable();
   bool InitEmpty(const CornerTable *table);
-  bool InitFromAttribute(const Mesh *mesh, const CornerTable *table,
-                         const PointAttribute *att);
+  bool InitFromAttribute(const Mesh *mesh, const CornerTable *table, const PointAttribute *att);
 
   void AddSeamEdge(CornerIndex opp_corner);
 

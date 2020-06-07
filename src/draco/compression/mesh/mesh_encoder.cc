@@ -14,20 +14,26 @@
 //
 #include "draco/compression/mesh/mesh_encoder.h"
 
-namespace draco {
+namespace draco
+{
 
-MeshEncoder::MeshEncoder() : mesh_(nullptr), num_encoded_faces_(0) {}
+MeshEncoder::MeshEncoder() : mesh_(nullptr), num_encoded_faces_(0)
+{
+}
 
-void MeshEncoder::SetMesh(const Mesh &m) {
+void MeshEncoder::SetMesh(const Mesh &m)
+{
   mesh_ = &m;
   SetPointCloud(m);
 }
 
-Status MeshEncoder::EncodeGeometryData() {
+Status MeshEncoder::EncodeGeometryData()
+{
   DRACO_RETURN_IF_ERROR(EncodeConnectivity());
-  if (options()->GetGlobalBool("store_number_of_encoded_faces", false)) {
+
+  if (options()->GetGlobalBool("store_number_of_encoded_faces", false))
     ComputeNumberOfEncodedFaces();
-  }
+
   return OkStatus();
 }
 

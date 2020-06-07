@@ -76,53 +76,48 @@ public unsafe class DracoMeshLoader
   }
 
   // Release data associated with DracoMesh.
-  [DllImport ("dracodec_unity")] private static extern void ReleaseDracoMesh(
-      DracoMesh**mesh);
+  [DllImport ("dracodec_unity")] private static extern void ReleaseDracoMesh(DracoMesh** mesh);
+
   // Release data associated with DracoAttribute.
-  [DllImport ("dracodec_unity")] private static extern void
-      ReleaseDracoAttribute(DracoAttribute**attr);
+  [DllImport ("dracodec_unity")] private static extern void ReleaseDracoAttribute(DracoAttribute** attr);
+
   // Release attribute data.
-  [DllImport ("dracodec_unity")] private static extern void ReleaseDracoData(
-      DracoData**data);
+  [DllImport ("dracodec_unity")] private static extern void ReleaseDracoData(DracoData** data);
 
   // Decodes compressed Draco::Mesh in buffer to mesh. On input, mesh
   // must be null. The returned mesh must released with ReleaseDracoMesh.
-  [DllImport ("dracodec_unity")] private static extern int DecodeDracoMesh(
-      byte[] buffer, int length, DracoMesh**mesh);
+  [DllImport ("dracodec_unity")] private static extern int DecodeDracoMesh(byte[] buffer, int length, DracoMesh** mesh);
 
   // Returns the DracoAttribute at index in mesh. On input, attribute must be
   // null. The returned attr must be released with ReleaseDracoAttribute.
-  [DllImport ("dracodec_unity")] private static extern bool GetAttribute(
-      DracoMesh* mesh, int index, DracoAttribute**attr);
+  [DllImport ("dracodec_unity")] private static extern bool GetAttribute(DracoMesh* mesh, int index, DracoAttribute** attr);
+
   // Returns the DracoAttribute of type at index in mesh. On input, attribute
   // must be null. E.g. If the mesh has two texture coordinates then
   // GetAttributeByType(mesh, AttributeType.TEX_COORD, 1, &attr); will return
   // the second TEX_COORD attribute. The returned attr must be released with
   // ReleaseDracoAttribute.
-  [DllImport ("dracodec_unity")] private static extern bool GetAttributeByType(
-      DracoMesh* mesh, AttributeType type, int index, DracoAttribute**attr);
+  [DllImport ("dracodec_unity")] private static extern bool GetAttributeByType(DracoMesh* mesh, AttributeType type, int index, DracoAttribute** attr);
+
   // Returns the DracoAttribute with unique_id in mesh. On input, attribute
   // must be null.The returned attr must be released with
   // ReleaseDracoAttribute.
-  [DllImport ("dracodec_unity")] private static extern bool
-      GetAttributeByUniqueId(DracoMesh* mesh, int unique_id,
-                             DracoAttribute**attr);
+  [DllImport ("dracodec_unity")] private static extern bool GetAttributeByUniqueId(DracoMesh* mesh, int unique_id, DracoAttribute** attr);
 
   // Returns an array of indices as well as the type of data in data_type. On
   // input, indices must be null. The returned indices must be released with
   // ReleaseDracoData.
-  [DllImport ("dracodec_unity")] private static extern bool GetMeshIndices(
-      DracoMesh* mesh, DracoData**indices);
+  [DllImport ("dracodec_unity")] private static extern bool GetMeshIndices(DracoMesh* mesh, DracoData** indices);
+
   // Returns an array of attribute data as well as the type of data in
   // data_type. On input, data must be null. The returned data must be
   // released with ReleaseDracoData.
-  [DllImport ("dracodec_unity")] private static extern bool GetAttributeData(
-      DracoMesh* mesh, DracoAttribute* attr, DracoData**data);
+  [DllImport ("dracodec_unity")] private static extern bool GetAttributeData(DracoMesh* mesh, DracoAttribute* attr, DracoData** data);
 
   public int LoadMeshFromAsset(string assetName, ref List<Mesh> meshes)
   {
-    TextAsset asset =
-        Resources.Load(assetName, typeof(TextAsset)) as TextAsset;
+    TextAsset asset = Resources.Load(assetName, typeof(TextAsset)) as TextAsset;
+
     if (asset == null) {
       Debug.Log ("Didn't load file!");
       return -1;

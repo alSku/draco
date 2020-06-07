@@ -30,15 +30,14 @@ class MeshEdgebreakerEncoder;
 // template arguments control encoding of the connectivity data. Because the
 // choice of the implementation is done in run-time, we need to hide it behind
 // the abstract interface MeshEdgebreakerEncoderImplInterface.
-class MeshEdgebreakerEncoderImplInterface {
+class MeshEdgebreakerEncoderImplInterface
+{
  public:
   virtual ~MeshEdgebreakerEncoderImplInterface() = default;
   virtual bool Init(MeshEdgebreakerEncoder *encoder) = 0;
 
-  virtual const MeshAttributeCornerTable *GetAttributeCornerTable(
-      int att_id) const = 0;
-  virtual const MeshAttributeIndicesEncodingData *GetAttributeEncodingData(
-      int att_id) const = 0;
+  virtual const MeshAttributeCornerTable *GetAttributeCornerTable(int att_id) const = 0;
+  virtual const MeshAttributeIndicesEncodingData *GetAttributeEncodingData(int att_id) const = 0;
   virtual bool GenerateAttributesEncoder(int32_t att_id) = 0;
   virtual bool EncodeAttributesEncoderIdentifier(int32_t att_encoder_id) = 0;
   virtual Status EncodeConnectivity() = 0;

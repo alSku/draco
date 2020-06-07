@@ -21,7 +21,8 @@
 #include "draco/compression/point_cloud/point_cloud_sequential_encoder.h"
 #endif
 
-namespace draco {
+namespace draco
+{
 
 ExpertEncoder::ExpertEncoder(const PointCloud &point_cloud)
     : point_cloud_(&point_cloud), mesh_(nullptr) {}
@@ -29,18 +30,19 @@ ExpertEncoder::ExpertEncoder(const PointCloud &point_cloud)
 ExpertEncoder::ExpertEncoder(const Mesh &mesh)
     : point_cloud_(&mesh), mesh_(&mesh) {}
 
-Status ExpertEncoder::EncodeToBuffer(EncoderBuffer *out_buffer) {
-  if (point_cloud_ == nullptr) {
+Status ExpertEncoder::EncodeToBuffer(EncoderBuffer *out_buffer)
+{
+  if (point_cloud_ == nullptr)
     return Status(Status::DRACO_ERROR, "Invalid input geometry.");
-  }
-  if (mesh_ == nullptr) {
+
+  if (mesh_ == nullptr)
     return EncodePointCloudToBuffer(*point_cloud_, out_buffer);
-  }
+
   return EncodeMeshToBuffer(*mesh_, out_buffer);
 }
 
-Status ExpertEncoder::EncodePointCloudToBuffer(const PointCloud &pc,
-                                               EncoderBuffer *out_buffer) {
+Status ExpertEncoder::EncodePointCloudToBuffer(const PointCloud &pc, EncoderBuffer *out_buffer)
+{
 #ifdef DRACO_POINT_CLOUD_COMPRESSION_SUPPORTED
   std::unique_ptr<PointCloudEncoder> encoder;
   const int encoding_method = options().GetGlobalInt("encoding_method", -1);
@@ -99,25 +101,29 @@ Status ExpertEncoder::EncodePointCloudToBuffer(const PointCloud &pc,
 #endif
 }
 
-Status ExpertEncoder::EncodeMeshToBuffer(const Mesh &m,
-                                         EncoderBuffer *out_buffer) {
+Status ExpertEncoder::EncodeMeshToBuffer(const Mesh &m, EncoderBuffer *out_buffer)
+{
   std::unique_ptr<MeshEncoder> encoder;
+
   // Select the encoding method only based on the provided options.
   int encoding_method = options().GetGlobalInt("encoding_method", -1);
-  if (encoding_method == -1) {
+
+  if (encoding_method == -1)
+  {
     // For now select the edgebreaker for all options expect of speed 10
-    if (options().GetSpeed() == 10) {
+    if (options().GetSpeed() == 10)
       encoding_method = MESH_SEQUENTIAL_ENCODING;
-    } else {
+    else
       encoding_method = MESH_EDGEBREAKER_ENCODING;
-    }
   }
-  if (encoding_method == MESH_EDGEBREAKER_ENCODING) {
+
+  if (encoding_method == MESH_EDGEBREAKER_ENCODING)
     encoder = std::unique_ptr<MeshEncoder>(new MeshEdgebreakerEncoder());
-  } else {
+  else
     encoder = std::unique_ptr<MeshEncoder>(new MeshSequentialEncoder());
-  }
+
   encoder->SetMesh(m);
+
   DRACO_RETURN_IF_ERROR(encoder->Encode(options(), out_buffer));
 
   set_num_encoded_points(encoder->num_encoded_points());
@@ -125,57 +131,57 @@ Status ExpertEncoder::EncodeMeshToBuffer(const Mesh &m,
   return OkStatus();
 }
 
-void ExpertEncoder::Reset(const EncoderOptions &options) {
+void ExpertEncoder::Reset(const EncoderOptions &options)
+{
   Base::Reset(options);
 }
 
 void ExpertEncoder::Reset() { Base::Reset(); }
 
-void ExpertEncoder::SetSpeedOptions(int encoding_speed, int decoding_speed) {
+void ExpertEncoder::SetSpeedOptions(int encoding_speed, int decoding_speed)
+{
   Base::SetSpeedOptions(encoding_speed, decoding_speed);
 }
 
-void ExpertEncoder::SetAttributeQuantization(int32_t attribute_id,
-                                             int quantization_bits) {
-  options().SetAttributeInt(attribute_id, "quantization_bits",
-                            quantization_bits);
+void ExpertEncoder::SetAttributeQuantization(int32_t attribute_id, int quantization_bits)
+{
+  options().SetAttributeInt(attribute_id, "quantization_bits", quantization_bits);
 }
 
 void ExpertEncoder::SetAttributeExplicitQuantization(int32_t attribute_id,
-                                                     int quantization_bits,
-                                                     int num_dims,
-                                                     const float *origin,
-                                                     float range) {
-  options().SetAttributeInt(attribute_id, "quantization_bits",
-                            quantization_bits);
-  options().SetAttributeVector(attribute_id, "quantization_origin", num_dims,
-                               origin);
+    int quantization_bits, int num_dims, const float *origin, float range)
+{
+  options().SetAttributeInt(attribute_id, "quantization_bits", quantization_bits);
+  options().SetAttributeVector(attribute_id, "quantization_origin", num_dims, origin);
   options().SetAttributeFloat(attribute_id, "quantization_range", range);
 }
 
-void ExpertEncoder::SetUseBuiltInAttributeCompression(bool enabled) {
+void ExpertEncoder::SetUseBuiltInAttributeCompression(bool enabled)
+{
   options().SetGlobalBool("use_built_in_attribute_compression", enabled);
 }
 
-void ExpertEncoder::SetEncodingMethod(int encoding_method) {
+void ExpertEncoder::SetEncodingMethod(int encoding_method)
+{
   Base::SetEncodingMethod(encoding_method);
 }
 
-void ExpertEncoder::SetEncodingSubmethod(int encoding_submethod) {
+void ExpertEncoder::SetEncodingSubmethod(int encoding_submethod)
+{
   Base::SetEncodingSubmethod(encoding_submethod);
 }
 
-Status ExpertEncoder::SetAttributePredictionScheme(
-    int32_t attribute_id, int prediction_scheme_method) {
+Status ExpertEncoder::SetAttributePredictionScheme(int32_t attribute_id, int prediction_scheme_method)
+{
   auto att = point_cloud_->attribute(attribute_id);
   auto att_type = att->attribute_type();
-  const Status status =
-      CheckPredictionScheme(att_type, prediction_scheme_method);
-  if (!status.ok()) {
+
+  const Status status = CheckPredictionScheme(att_type, prediction_scheme_method);
+
+  if (!status.ok())
     return status;
-  }
-  options().SetAttributeInt(attribute_id, "prediction_scheme",
-                            prediction_scheme_method);
+
+  options().SetAttributeInt(attribute_id, "prediction_scheme", prediction_scheme_method);
   return status;
 }
 

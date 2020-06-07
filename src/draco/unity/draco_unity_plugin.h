@@ -20,6 +20,8 @@
 #include "draco/compression/decode.h"
 #include "draco/core/draco_types.h"
 
+//#define BUILD_UNITY_PLUGIN
+
 #ifdef BUILD_UNITY_PLUGIN
 
 // If compiling with Visual Studio.

@@ -31,10 +31,13 @@
 
 namespace {
 
-class EncodeTest : public ::testing::Test {
+class EncodeTest : public ::testing::Test
+{
  protected:
   EncodeTest() {}
-  std::unique_ptr<draco::Mesh> CreateTestMesh() const {
+
+  std::unique_ptr<draco::Mesh> CreateTestMesh() const
+  {
     draco::TriangleSoupMeshBuilder mesh_builder;
 
     // Create a simple mesh with one face.
@@ -43,27 +46,37 @@ class EncodeTest : public ::testing::Test {
     // Add one position attribute and two texture coordinate attributes.
     const int32_t pos_att_id = mesh_builder.AddAttribute(
         draco::GeometryAttribute::POSITION, 3, draco::DT_FLOAT32);
+
     const int32_t tex_att_id_0 = mesh_builder.AddAttribute(
         draco::GeometryAttribute::TEX_COORD, 2, draco::DT_FLOAT32);
+
     const int32_t tex_att_id_1 = mesh_builder.AddAttribute(
         draco::GeometryAttribute::TEX_COORD, 2, draco::DT_FLOAT32);
 
     // Initialize the attribute values.
     mesh_builder.SetAttributeValuesForFace(
-        pos_att_id, draco::FaceIndex(0), draco::Vector3f(0.f, 0.f, 0.f).data(),
+        pos_att_id, draco::FaceIndex(0),
+        draco::Vector3f(0.f, 0.f, 0.f).data(),
         draco::Vector3f(1.f, 0.f, 0.f).data(),
         draco::Vector3f(1.f, 1.f, 0.f).data());
+
     mesh_builder.SetAttributeValuesForFace(
-        tex_att_id_0, draco::FaceIndex(0), draco::Vector2f(0.f, 0.f).data(),
-        draco::Vector2f(1.f, 0.f).data(), draco::Vector2f(1.f, 1.f).data());
+        tex_att_id_0, draco::FaceIndex(0),
+        draco::Vector2f(0.f, 0.f).data(),
+        draco::Vector2f(1.f, 0.f).data(),
+        draco::Vector2f(1.f, 1.f).data());
+
     mesh_builder.SetAttributeValuesForFace(
-        tex_att_id_1, draco::FaceIndex(0), draco::Vector2f(0.f, 0.f).data(),
-        draco::Vector2f(1.f, 0.f).data(), draco::Vector2f(1.f, 1.f).data());
+        tex_att_id_1, draco::FaceIndex(0),
+        draco::Vector2f(0.f, 0.f).data(),
+        draco::Vector2f(1.f, 0.f).data(),
+        draco::Vector2f(1.f, 1.f).data());
 
     return mesh_builder.Finalize();
   }
 
-  std::unique_ptr<draco::PointCloud> CreateTestPointCloud() const {
+  std::unique_ptr<draco::PointCloud> CreateTestPointCloud() const
+  {
     draco::PointCloudBuilder pc_builder;
 
     constexpr int kNumPoints = 100;
@@ -74,8 +87,10 @@ class EncodeTest : public ::testing::Test {
     // Add one position attribute and two generic attributes.
     const int32_t pos_att_id = pc_builder.AddAttribute(
         draco::GeometryAttribute::POSITION, 3, draco::DT_FLOAT32);
+
     const int32_t gen_att_id_0 = pc_builder.AddAttribute(
         draco::GeometryAttribute::GENERIC, kNumGenAttCoords0, draco::DT_UINT32);
+
     const int32_t gen_att_id_1 = pc_builder.AddAttribute(
         draco::GeometryAttribute::GENERIC, kNumGenAttCoords1, draco::DT_UINT8);
 
@@ -83,43 +98,41 @@ class EncodeTest : public ::testing::Test {
     std::vector<uint32_t> gen_att_data_1(kNumGenAttCoords1);
 
     // Initialize the attribute values.
-    for (draco::PointIndex i(0); i < kNumPoints; ++i) {
+    for (draco::PointIndex i(0); i < kNumPoints; ++i)
+    {
       const float pos_coord = static_cast<float>(i.value());
-      pc_builder.SetAttributeValueForPoint(
-          pos_att_id, i,
-          draco::Vector3f(pos_coord, -pos_coord, pos_coord).data());
 
-      for (int j = 0; j < kNumGenAttCoords0; ++j) {
+      pc_builder.SetAttributeValueForPoint(pos_att_id, i,draco::Vector3f(pos_coord, -pos_coord, pos_coord).data());
+
+      for (int j = 0; j < kNumGenAttCoords0; ++j)
         gen_att_data_0[j] = i.value();
-      }
-      pc_builder.SetAttributeValueForPoint(gen_att_id_0, i,
-                                           gen_att_data_0.data());
 
-      for (int j = 0; j < kNumGenAttCoords1; ++j) {
+      pc_builder.SetAttributeValueForPoint(gen_att_id_0, i, gen_att_data_0.data());
+
+      for (int j = 0; j < kNumGenAttCoords1; ++j)
         gen_att_data_1[j] = -i.value();
-      }
-      pc_builder.SetAttributeValueForPoint(gen_att_id_1, i,
-                                           gen_att_data_1.data());
+
+      pc_builder.SetAttributeValueForPoint(gen_att_id_1, i, gen_att_data_1.data());
     }
 
     return pc_builder.Finalize(false);
   }
 
-  int GetQuantizationBitsFromAttribute(const draco::PointAttribute *att) const {
-    if (att == nullptr) {
+  int GetQuantizationBitsFromAttribute(const draco::PointAttribute *att) const
+  {
+    if (att == nullptr)
       return -1;
-    }
+
     draco::AttributeQuantizationTransform transform;
-    if (!transform.InitFromAttribute(*att)) {
+
+    if (!transform.InitFromAttribute(*att))
       return -1;
-    }
+
     return transform.quantization_bits();
   }
 
-  void VerifyNumQuantizationBits(const draco::EncoderBuffer &buffer,
-                                 int pos_quantization,
-                                 int tex_coord_0_quantization,
-                                 int tex_coord_1_quantization) const {
+  void VerifyNumQuantizationBits(const draco::EncoderBuffer &buffer, int pos_quantization, int tex_coord_0_quantization, int tex_coord_1_quantization) const
+  {
     draco::Decoder decoder;
 
     // Skip the dequantization for the attributes which will allow us to get
@@ -130,35 +143,36 @@ class EncodeTest : public ::testing::Test {
     draco::DecoderBuffer in_buffer;
     in_buffer.Init(buffer.data(), buffer.size());
     auto mesh = decoder.DecodeMeshFromBuffer(&in_buffer).value();
+
     ASSERT_NE(mesh, nullptr);
-    ASSERT_EQ(GetQuantizationBitsFromAttribute(mesh->attribute(0)),
-              pos_quantization);
-    ASSERT_EQ(GetQuantizationBitsFromAttribute(mesh->attribute(1)),
-              tex_coord_0_quantization);
-    ASSERT_EQ(GetQuantizationBitsFromAttribute(mesh->attribute(2)),
-              tex_coord_1_quantization);
+    ASSERT_EQ(GetQuantizationBitsFromAttribute(mesh->attribute(0)), pos_quantization);
+    ASSERT_EQ(GetQuantizationBitsFromAttribute(mesh->attribute(1)), tex_coord_0_quantization);
+    ASSERT_EQ(GetQuantizationBitsFromAttribute(mesh->attribute(2)), tex_coord_1_quantization);
   }
 
   // Tests that the encoder returns the correct number of encoded points and
   // faces for a given mesh or point cloud.
-  void TestNumberOfEncodedEntries(const std::string &file_name,
-                                  int32_t encoding_method) {
+  void TestNumberOfEncodedEntries(const std::string &file_name, int32_t encoding_method)
+  {
     std::unique_ptr<draco::PointCloud> geometry;
     draco::Mesh *mesh = nullptr;
 
-    if (encoding_method == draco::MESH_EDGEBREAKER_ENCODING ||
-        encoding_method == draco::MESH_SEQUENTIAL_ENCODING) {
-      std::unique_ptr<draco::Mesh> mesh_tmp =
-          draco::ReadMeshFromTestFile(file_name);
+    if (encoding_method == draco::MESH_EDGEBREAKER_ENCODING || encoding_method == draco::MESH_SEQUENTIAL_ENCODING)
+    {
+      std::unique_ptr<draco::Mesh> mesh_tmp = draco::ReadMeshFromTestFile(file_name);
       mesh = mesh_tmp.get();
-      if (!mesh->DeduplicateAttributeValues()) {
+
+      if (!mesh->DeduplicateAttributeValues())
         return;
-      }
+
       mesh->DeduplicatePointIds();
       geometry = std::move(mesh_tmp);
-    } else {
+    }
+    else
+    {
       geometry = draco::ReadPointCloudFromTestFile(file_name);
     }
+
     ASSERT_NE(mesh, nullptr);
 
     draco::Encoder encoder;
@@ -167,15 +181,14 @@ class EncodeTest : public ::testing::Test {
     encoder.SetAttributeQuantization(draco::GeometryAttribute::NORMAL, 10);
 
     encoder.SetEncodingMethod(encoding_method);
-
     encoder.SetTrackEncodedProperties(true);
 
     draco::EncoderBuffer buffer;
-    if (mesh) {
+
+    if (mesh)
       encoder.EncodeMeshToBuffer(*mesh, &buffer);
-    } else {
+    else
       encoder.EncodePointCloudToBuffer(*geometry, &buffer);
-    }
 
     // Ensure the logged number of encoded points and faces matches the number
     // we get from the decoder.
@@ -184,23 +197,29 @@ class EncodeTest : public ::testing::Test {
     decoder_buffer.Init(buffer.data(), buffer.size());
     draco::Decoder decoder;
 
-    if (mesh) {
+    if (mesh)
+    {
       auto maybe_mesh = decoder.DecodeMeshFromBuffer(&decoder_buffer);
       ASSERT_TRUE(maybe_mesh.ok());
+
       auto decoded_mesh = std::move(maybe_mesh).value();
       ASSERT_NE(decoded_mesh, nullptr);
       ASSERT_EQ(decoded_mesh->num_points(), encoder.num_encoded_points());
       ASSERT_EQ(decoded_mesh->num_faces(), encoder.num_encoded_faces());
-    } else {
+    }
+    else
+    {
       auto maybe_pc = decoder.DecodePointCloudFromBuffer(&decoder_buffer);
       ASSERT_TRUE(maybe_pc.ok());
+
       auto decoded_pc = std::move(maybe_pc).value();
       ASSERT_EQ(decoded_pc->num_points(), encoder.num_encoded_points());
     }
   }
 };
 
-TEST_F(EncodeTest, TestExpertEncoderQuantization) {
+TEST_F(EncodeTest, TestExpertEncoderQuantization)
+{
   // This test verifies that the expert encoder can quantize individual
   // attributes even if they have the same type.
   auto mesh = CreateTestMesh();
@@ -216,7 +235,8 @@ TEST_F(EncodeTest, TestExpertEncoderQuantization) {
   VerifyNumQuantizationBits(buffer, 16, 15, 14);
 }
 
-TEST_F(EncodeTest, TestEncoderQuantization) {
+TEST_F(EncodeTest, TestEncoderQuantization)
+{
   // This test verifies that Encoder applies the same quantization to all
   // attributes of the same type.
   auto mesh = CreateTestMesh();
@@ -231,15 +251,15 @@ TEST_F(EncodeTest, TestEncoderQuantization) {
   VerifyNumQuantizationBits(buffer, 16, 15, 15);
 }
 
-TEST_F(EncodeTest, TestLinesObj) {
+TEST_F(EncodeTest, TestLinesObj)
+{
   // This test verifies that Encoder can encode file that contains only line
   // segments (that are ignored).
-  std::unique_ptr<draco::Mesh> mesh(
-      draco::ReadMeshFromTestFile("test_lines.obj"));
+  std::unique_ptr<draco::Mesh> mesh(draco::ReadMeshFromTestFile("test_lines.obj"));
   ASSERT_NE(mesh, nullptr);
   ASSERT_EQ(mesh->num_faces(), 0);
-  std::unique_ptr<draco::PointCloud> pc(
-      draco::ReadPointCloudFromTestFile("test_lines.obj"));
+
+  std::unique_ptr<draco::PointCloud> pc(draco::ReadPointCloudFromTestFile("test_lines.obj"));
   ASSERT_NE(pc, nullptr);
 
   draco::Encoder encoder;
@@ -249,7 +269,8 @@ TEST_F(EncodeTest, TestLinesObj) {
   ASSERT_TRUE(encoder.EncodePointCloudToBuffer(*pc, &buffer).ok());
 }
 
-TEST_F(EncodeTest, TestKdTreeEncoding) {
+TEST_F(EncodeTest, TestKdTreeEncoding)
+{
   // This test verifies that the API can successfully encode a point cloud
   // defined by several attributes using the kd tree method.
   std::unique_ptr<draco::PointCloud> pc = CreateTestPointCloud();
@@ -258,6 +279,7 @@ TEST_F(EncodeTest, TestKdTreeEncoding) {
   draco::EncoderBuffer buffer;
   draco::Encoder encoder;
   encoder.SetEncodingMethod(draco::POINT_CLOUD_KD_TREE_ENCODING);
+
   // First try it without quantizing positions which should fail.
   ASSERT_FALSE(encoder.EncodePointCloudToBuffer(*pc, &buffer).ok());
 
@@ -267,23 +289,22 @@ TEST_F(EncodeTest, TestKdTreeEncoding) {
   ASSERT_TRUE(encoder.EncodePointCloudToBuffer(*pc, &buffer).ok());
 }
 
-TEST_F(EncodeTest, TestTrackingOfNumberOfEncodedEntries) {
+TEST_F(EncodeTest, TestTrackingOfNumberOfEncodedEntries)
+{
   TestNumberOfEncodedEntries("deg_faces.obj", draco::MESH_EDGEBREAKER_ENCODING);
   TestNumberOfEncodedEntries("deg_faces.obj", draco::MESH_SEQUENTIAL_ENCODING);
   TestNumberOfEncodedEntries("cube_att.obj", draco::MESH_EDGEBREAKER_ENCODING);
   TestNumberOfEncodedEntries("test_nm.obj", draco::MESH_EDGEBREAKER_ENCODING);
   TestNumberOfEncodedEntries("test_nm.obj", draco::MESH_SEQUENTIAL_ENCODING);
-  TestNumberOfEncodedEntries("cube_subd.obj",
-                             draco::POINT_CLOUD_KD_TREE_ENCODING);
-  TestNumberOfEncodedEntries("cube_subd.obj",
-                             draco::POINT_CLOUD_SEQUENTIAL_ENCODING);
+  TestNumberOfEncodedEntries("cube_subd.obj", draco::POINT_CLOUD_KD_TREE_ENCODING);
+  TestNumberOfEncodedEntries("cube_subd.obj", draco::POINT_CLOUD_SEQUENTIAL_ENCODING);
 }
 
-TEST_F(EncodeTest, TestTrackingOfNumberOfEncodedEntriesNotSet) {
+TEST_F(EncodeTest, TestTrackingOfNumberOfEncodedEntriesNotSet)
+{
   // Tests that when tracing of encoded properties is disabled, the returned
   // number of encoded faces and points is 0.
-  std::unique_ptr<draco::Mesh> mesh(
-      draco::ReadMeshFromTestFile("cube_att.obj"));
+  std::unique_ptr<draco::Mesh> mesh(draco::ReadMeshFromTestFile("cube_att.obj"));
   ASSERT_NE(mesh, nullptr);
 
   draco::EncoderBuffer buffer;

@@ -40,43 +40,52 @@ StatusOr<std::unique_ptr<Mesh>> ReadMeshFromFile(const std::string &file_name,
   return ReadMeshFromFile(file_name, options, nullptr);
 }
 
-StatusOr<std::unique_ptr<Mesh>> ReadMeshFromFile(
-    const std::string &file_name, const Options &options,
-    std::vector<std::string> *mesh_files) {
+StatusOr<std::unique_ptr<Mesh>> ReadMeshFromFile(const std::string &file_name,
+  const Options &options, std::vector<std::string> *mesh_files)
+{
   std::unique_ptr<Mesh> mesh(new Mesh());
+
   // Analyze file extension.
   const std::string extension = LowercaseFileExtension(file_name);
+
   if (extension != "gltf" && mesh_files) {
     // The GLTF decoder will fill |mesh_files|, but for other file types we set
     // the root file here to avoid duplicating code.
     mesh_files->push_back(file_name);
   }
-  if (extension == "obj") {
+
+  if (extension == "obj")
+  {
     // Wavefront OBJ file format.
     ObjDecoder obj_decoder;
     obj_decoder.set_use_metadata(options.GetBool("use_metadata", false));
     const Status obj_status = obj_decoder.DecodeFromFile(file_name, mesh.get());
-    if (!obj_status.ok()) {
+
+    if (!obj_status.ok())
       return obj_status;
-    }
+
     return std::move(mesh);
   }
-  if (extension == "ply") {
+  if (extension == "ply")
+  {
     // Wavefront PLY file format.
     PlyDecoder ply_decoder;
     DRACO_RETURN_IF_ERROR(ply_decoder.DecodeFromFile(file_name, mesh.get()));
+
     return std::move(mesh);
   }
 
   // Otherwise not an obj file. Assume the file was encoded with one of the
   // draco encoding methods.
   std::vector<char> file_data;
-  if (!ReadFileToBuffer(file_name, &file_data)) {
+
+  if (!ReadFileToBuffer(file_name, &file_data))
     return Status(Status::DRACO_ERROR, "Unable to read input file.");
-  }
+
   DecoderBuffer buffer;
   buffer.Init(file_data.data(), file_data.size());
   Decoder decoder;
+
   auto statusor = decoder.DecodeMeshFromBuffer(&buffer);
   if (!statusor.ok() || statusor.value() == nullptr) {
     return Status(Status::DRACO_ERROR, "Error decoding input.");

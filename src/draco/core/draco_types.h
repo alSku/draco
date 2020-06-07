@@ -15,7 +15,7 @@
 #ifndef DRACO_CORE_DRACO_TYPES_H_
 #define DRACO_CORE_DRACO_TYPES_H_
 
-#include <stdint.h>
+#include <cstdint>
 
 #include <string>
 

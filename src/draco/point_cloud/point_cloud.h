@@ -46,21 +46,22 @@ class PointCloud {
   const PointAttribute *GetNamedAttribute(GeometryAttribute::Type type) const;
 
   // Returns the i-th named attribute of a given type.
-  const PointAttribute *GetNamedAttribute(GeometryAttribute::Type type,
-                                          int i) const;
+  const PointAttribute *GetNamedAttribute(GeometryAttribute::Type type, int i) const;
 
   // Returns the named attribute of a given unique id.
-  const PointAttribute *GetNamedAttributeByUniqueId(
-      GeometryAttribute::Type type, uint32_t id) const;
+  const PointAttribute *GetNamedAttributeByUniqueId(GeometryAttribute::Type type, uint32_t id) const;
 
   // Returns the attribute of a given unique id.
   const PointAttribute *GetAttributeByUniqueId(uint32_t id) const;
   int32_t GetAttributeIdByUniqueId(uint32_t unique_id) const;
 
-  int32_t num_attributes() const {
+  int32_t num_attributes() const
+  {
     return static_cast<int32_t>(attributes_.size());
   }
-  const PointAttribute *attribute(int32_t att_id) const {
+
+  const PointAttribute *attribute(int32_t att_id) const
+  {
     DRACO_DCHECK_LE(0, att_id);
     DRACO_DCHECK_LT(att_id, static_cast<int32_t>(attributes_.size()));
     return attributes_[att_id].get();
@@ -68,7 +69,8 @@ class PointCloud {
 
   // Returned attribute can be modified, but it's caller's responsibility to
   // maintain the attribute's consistency with draco::PointCloud.
-  PointAttribute *attribute(int32_t att_id) {
+  PointAttribute *attribute(int32_t att_id)
+  {
     DRACO_DCHECK_LE(0, att_id);
     DRACO_DCHECK_LT(att_id, static_cast<int32_t>(attributes_.size()));
     return attributes_[att_id].get();
@@ -89,15 +91,13 @@ class PointCloud {
   // used to specify the number of attribute values that are going to be
   // stored in the newly created attribute. Returns attribute id of the newly
   // created attribute or -1 in case of failure.
-  int AddAttribute(const GeometryAttribute &att, bool identity_mapping,
-                   AttributeValueIndex::ValueType num_attribute_values);
+  int AddAttribute(const GeometryAttribute &att, bool identity_mapping, AttributeValueIndex::ValueType num_attribute_values);
 
   // Creates and returns a new attribute or nullptr in case of failure. This
   // method is similar to AddAttribute(), except that it returns the new
   // attribute instead of adding it to the point cloud.
-  std::unique_ptr<PointAttribute> CreateAttribute(
-      const GeometryAttribute &att, bool identity_mapping,
-      AttributeValueIndex::ValueType num_attribute_values) const;
+  std::unique_ptr<PointAttribute>
+      CreateAttribute(const GeometryAttribute &att, bool identity_mapping, AttributeValueIndex::ValueType num_attribute_values) const;
 
   // Assigns an attribute id to a given PointAttribute. If an attribute with
   // the same attribute id already exists, it is deleted.
@@ -123,50 +123,51 @@ class PointCloud {
   BoundingBox ComputeBoundingBox() const;
 
   // Add metadata.
-  void AddMetadata(std::unique_ptr<GeometryMetadata> metadata) {
+  void AddMetadata(std::unique_ptr<GeometryMetadata> metadata)
+  {
     metadata_ = std::move(metadata);
   }
 
   // Add metadata for an attribute.
-  void AddAttributeMetadata(int32_t att_id,
-                            std::unique_ptr<AttributeMetadata> metadata) {
-    if (!metadata_) {
+  void AddAttributeMetadata(int32_t att_id, std::unique_ptr<AttributeMetadata> metadata)
+  {
+    if (!metadata_)
       metadata_ = std::unique_ptr<GeometryMetadata>(new GeometryMetadata());
-    }
+
     const int32_t att_unique_id = attribute(att_id)->unique_id();
     metadata->set_att_unique_id(att_unique_id);
     metadata_->AddAttributeMetadata(std::move(metadata));
   }
 
-  const AttributeMetadata *GetAttributeMetadataByAttributeId(
-      int32_t att_id) const {
-    if (metadata_ == nullptr) {
+  const AttributeMetadata *GetAttributeMetadataByAttributeId(int32_t att_id) const
+  {
+    if (metadata_ == nullptr)
       return nullptr;
-    }
+
     const uint32_t unique_id = attribute(att_id)->unique_id();
     return metadata_->GetAttributeMetadataByUniqueId(unique_id);
   }
 
   // Returns the attribute metadata that has the requested metadata entry.
-  const AttributeMetadata *GetAttributeMetadataByStringEntry(
-      const std::string &name, const std::string &value) const {
-    if (metadata_ == nullptr) {
+  const AttributeMetadata *GetAttributeMetadataByStringEntry(const std::string &name, const std::string &value) const
+  {
+    if (metadata_ == nullptr)
       return nullptr;
-    }
+
     return metadata_->GetAttributeMetadataByStringEntry(name, value);
   }
 
   // Returns the first attribute that has the requested metadata entry.
-  int GetAttributeIdByMetadataEntry(const std::string &name,
-                                    const std::string &value) const {
-    if (metadata_ == nullptr) {
+  int GetAttributeIdByMetadataEntry(const std::string &name, const std::string &value) const
+  {
+    if (metadata_ == nullptr)
       return -1;
-    }
-    const AttributeMetadata *att_metadata =
-        metadata_->GetAttributeMetadataByStringEntry(name, value);
-    if (!att_metadata) {
+
+    const AttributeMetadata *att_metadata = metadata_->GetAttributeMetadataByStringEntry(name, value);
+
+    if (!att_metadata)
       return -1;
-    }
+
     return GetAttributeIdByUniqueId(att_metadata->att_unique_id());
   }
 
@@ -200,8 +201,7 @@ class PointCloud {
   std::vector<std::unique_ptr<PointAttribute>> attributes_;
 
   // Ids of named attributes of the given type.
-  std::vector<int32_t>
-      named_attribute_index_[GeometryAttribute::NAMED_ATTRIBUTES_COUNT];
+  std::vector<int32_t> named_attribute_index_[GeometryAttribute::NAMED_ATTRIBUTES_COUNT];
 
   // The number of n-dimensional points. All point attribute values are stored
   // in corresponding PointAttribute instances in the |attributes_| array.
@@ -214,27 +214,34 @@ class PointCloud {
 // Note that this can be quite slow. Two point clouds will have the same hash
 // only when all points have the same order and when all attribute values are
 // exactly the same.
-struct PointCloudHasher {
-  size_t operator()(const PointCloud &pc) const {
+struct PointCloudHasher
+{
+  size_t operator()(const PointCloud &pc) const
+  {
     size_t hash = pc.num_points_;
     hash = HashCombine(pc.attributes_.size(), hash);
-    for (int i = 0; i < GeometryAttribute::NAMED_ATTRIBUTES_COUNT; ++i) {
+
+    for (int i = 0; i < GeometryAttribute::NAMED_ATTRIBUTES_COUNT; ++i)
+    {
       hash = HashCombine(pc.named_attribute_index_[i].size(), hash);
-      for (int j = 0; j < static_cast<int>(pc.named_attribute_index_[i].size());
-           ++j) {
+
+      for (int j = 0; j < static_cast<int>(pc.named_attribute_index_[i].size()); ++j)
         hash = HashCombine(pc.named_attribute_index_[i][j], hash);
-      }
     }
+
     // Hash attributes.
-    for (int i = 0; i < static_cast<int>(pc.attributes_.size()); ++i) {
+    for (int i = 0; i < static_cast<int>(pc.attributes_.size()); ++i)
+    {
       PointAttributeHasher att_hasher;
       hash = HashCombine(att_hasher(*pc.attributes_[i]), hash);
     }
+
     // Hash metadata.
     GeometryMetadataHasher metadata_hasher;
-    if (pc.metadata_) {
+
+    if (pc.metadata_)
       hash = HashCombine(metadata_hasher(*pc.metadata_), hash);
-    }
+
     return hash;
   }
 };
